@@ -9,8 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PreviewIndexRouteImport } from './routes/preview/index'
 import { Route as EditorIndexRouteImport } from './routes/editor/index'
 
+const PreviewIndexRoute = PreviewIndexRouteImport.update({
+  id: '/preview/',
+  path: '/preview/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditorIndexRoute = EditorIndexRouteImport.update({
   id: '/editor/',
   path: '/editor/',
@@ -19,28 +25,39 @@ const EditorIndexRoute = EditorIndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/editor': typeof EditorIndexRoute
+  '/preview': typeof PreviewIndexRoute
 }
 export interface FileRoutesByTo {
   '/editor': typeof EditorIndexRoute
+  '/preview': typeof PreviewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/editor/': typeof EditorIndexRoute
+  '/preview/': typeof PreviewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/editor'
+  fullPaths: '/editor' | '/preview'
   fileRoutesByTo: FileRoutesByTo
-  to: '/editor'
-  id: '__root__' | '/editor/'
+  to: '/editor' | '/preview'
+  id: '__root__' | '/editor/' | '/preview/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   EditorIndexRoute: typeof EditorIndexRoute
+  PreviewIndexRoute: typeof PreviewIndexRoute
 }
 
 declare module '@tanstack/solid-router' {
   interface FileRoutesByPath {
+    '/preview/': {
+      id: '/preview/'
+      path: '/preview'
+      fullPath: '/preview'
+      preLoaderRoute: typeof PreviewIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/editor/': {
       id: '/editor/'
       path: '/editor'
@@ -53,6 +70,7 @@ declare module '@tanstack/solid-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   EditorIndexRoute: EditorIndexRoute,
+  PreviewIndexRoute: PreviewIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
